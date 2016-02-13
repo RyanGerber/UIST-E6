@@ -3,7 +3,7 @@
 //  call them in the functions below!)
 
 var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
-var TEAM_NAME  = '';
+var TEAM_NAME  = 'hashtag';
 var socket; 
 
 function setup() {
