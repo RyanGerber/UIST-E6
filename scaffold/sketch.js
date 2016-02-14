@@ -1,7 +1,8 @@
 var bullets;
 var asteroids;
 var ship;
-var shipImage, bulletImage, particleImage;
+var ships = [];
+var shipImage, bulletImage;
 var MARGIN = 40;
 var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'hashtag';
@@ -13,7 +14,7 @@ bulletImage = loadImage("assets/missile.png");
 shipImage = loadImage("assets/plane.png");
 
 socket = io(SOCKET_URL + TEAM_NAME);
-socket.on('plane',addPlane (mouseX, mouseY);
+socket.on('plane',createPlane(random(windowWidth),random(windowHeight)));
 
 
 asteroids = new Group();
@@ -53,10 +54,7 @@ function draw() {
   if(keyDown(UP_ARROW))
     {
     ship.addSpeed(.2, ship.rotation);
-    ship.changeAnimation("thrust");
     }
-  else
-    ship.changeAnimation("normal");
     
   if(keyWentDown("x"))
     {
@@ -92,12 +90,17 @@ function createAsteroid(type, x, y) {
 }
 
 function createPlane (x,y) {
-	ship = createSprite(width/2, height/2);
+	ship = createSprite(x,y);
 	ship.maxSpeed = 6;
 	ship.friction = .98;
+	ship.scale = 0.2;
 	ship.setCollider("circle", 0,0, 20);
-
 	ship.addImage("normal", shipImage);
+	ships.push({
+		x: x,
+		y: y,
+		c: ship
+	});
 }
 
 function asteroidHit(asteroid, bullet) {
