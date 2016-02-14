@@ -61,7 +61,8 @@ function draw() {
     var bullet = createSprite(ship.position.x, ship.position.y);
     bullet.addImage(bulletImage);
     bullet.setSpeed(10+ship.getSpeed(), ship.rotation);
-    bullet.life = 30;
+    bullet.life = 50;
+	bullet.scale = 0.2;
     bullets.add(bullet);
     }
   
@@ -71,7 +72,7 @@ function draw() {
 
 function createAsteroid(type, x, y) {
   var a = createSprite(x, y);
-  var img  = loadImage("assets/asteroid"+floor(random(0,3))+".png");
+  var img  = loadImage("assets/asteroid0.png");
   a.addImage(img);
   a.setSpeed(2.5-(type/2), random(360));
   a.rotationSpeed = .5;
