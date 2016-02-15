@@ -14,11 +14,21 @@ bulletImage = loadImage("assets/missile.png");
 shipImage = loadImage("assets/plane.png");
 
 socket = io(SOCKET_URL + TEAM_NAME);
-socket.on('plane',createPlane(random(windowWidth),random(windowHeight)));
+socket.on('plane',function(id){
+ createPlane(random(windowWidth),random(windowHeight), id);
+});
 
+var id = new Date().getTime();
+ship = createPlane(random(windowWidth),random(windowHeight));
+socket.emit('plane', ship.id);
+
+socket.on("keyDown", function(key, id){
+  handleKeyboard(key, id);
+});  
 
 asteroids = new Group();
 bullets = new Group();
+
 
 for(var i = 0; i<8; i++) {
   var ang = random(360);
@@ -47,27 +57,59 @@ function draw() {
   
   ship.bounce(asteroids);
   
+  var key = ""; 
+
   if(keyDown(LEFT_ARROW))
-    ship.rotation -= 4;
+    key = "left";
   if(keyDown(RIGHT_ARROW))
-    ship.rotation += 4;
+    key = "right";
   if(keyDown(UP_ARROW))
-    {
-    ship.addSpeed(.2, ship.rotation);
-    }
-    
-  if(keyWentDown("x"))
-    {
-    var bullet = createSprite(ship.position.x, ship.position.y);
-    bullet.addImage(bulletImage);
-    bullet.setSpeed(10+ship.getSpeed(), ship.rotation);
-    bullet.life = 50;
-	bullet.scale = 0.2;
-    bullets.add(bullet);
-    }
+    key = "up";
+  if(keyWentDown("x"))    
+    key = "x";
+
+  if(key != "")
+    handleKeyboard(key);
+  socket.emit("keyDown", key, ship.id);    
+  
   
   drawSprites();
   
+}
+
+function handleKeyboard(key, id){
+  var currentShip;
+
+  if (ship.id == id){
+    currentShip = ship;
+  }else{
+    for(var i=0; i<ships.length; i++){
+      if (ships[i].id == id){
+        currentShip = ships[i]
+        break;  
+      }      
+    }
+  }
+
+  switch(key){
+    case "up":
+      currentShip.addSpeed(.2, currentShip.rotation);
+      break;
+    case "left":
+      currentShip.rotation -= 4;
+      break;
+    case "right":
+      currentShip.rotation += 4;
+      break;
+    case "x":
+      var bullet = createSprite(currentShip .position.x, currentShip .position.y);
+      bullet.addImage(bulletImage);
+      bullet.setSpeed(10+currentShip .getSpeed(), currentShip .rotation);
+      bullet.life = 50;
+      bullet.scale = 0.2;
+      bullets.add(bullet);
+      break;
+  }
 }
 
 function createAsteroid(type, x, y) {
@@ -90,18 +132,22 @@ function createAsteroid(type, x, y) {
   return a;
 }
 
-function createPlane (x,y) {
+function createPlane (x,y, id) {
+  var ship;
 	ship = createSprite(x,y);
 	ship.maxSpeed = 6;
 	ship.friction = .98;
 	ship.scale = 0.2;
 	ship.setCollider("circle", 0,0, 20);
 	ship.addImage("normal", shipImage);
+  ship.id = id;
 	ships.push({
 		x: x,
 		y: y,
 		c: ship
 	});
+
+  return ship;
 }
 
 function asteroidHit(asteroid, bullet) {
